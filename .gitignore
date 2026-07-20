@@ -7,3 +7,4 @@ __pycache__/
 *.dot
 *.json
 synthesis.log
+*:Zone.Identifier
