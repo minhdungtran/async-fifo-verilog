@@ -18,6 +18,7 @@ In this project, the write side and read side use different clocks. Directly tra
 ### Reference Architecture
 
 ![Reference Asynchronous FIFO Block Diagram](docs/async_fifo_diagram.png)
+*Figure 1. Reference FIFO Style #1 architecture with synchronized pointer comparison. Source: Clifford E. Cummings, “Simulation and Synthesis Techniques for Asynchronous FIFO Design,” SNUG 2002, Figure 5.*
 
 The design follows the commonly used asynchronous FIFO architecture based on synchronized Gray-code pointer comparison.
 
@@ -179,7 +180,3 @@ The current work covers RTL implementation, simulation, linting, and generic syn
 2. Cocotb Documentation.
 3. Yosys Open Synthesis Suite Documentation.
 4. Verilator Documentation.
-
-## License
-
-MIT License
