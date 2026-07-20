@@ -17,21 +17,26 @@ In this project, the write side and read side use different clocks. Directly tra
 
 ### Reference Architecture
 
-![Reference Asynchronous FIFO Block Diagram](docs/async_fifo_diagram.png)
-*Figure 1. Reference FIFO Style #1 architecture with synchronized pointer comparison. Source: Clifford E. Cummings, “Simulation and Synthesis Techniques for Asynchronous FIFO Design,” SNUG 2002, Figure 5.*
+![Implemented Asynchronous FIFO Block Diagram](docs/async_fifo_block_diagram.png)
 
-The design follows the commonly used asynchronous FIFO architecture based on synchronized Gray-code pointer comparison.
+*Figure 1. Block diagram of the implemented asynchronous FIFO. The diagram was created for this project based on the synchronized Gray-pointer FIFO architecture described by Clifford E. Cummings [1].*
+
+The design uses separate write and read clock domains connected through a dual-port RAM.
 
 In this architecture:
 
-Binary write and read pointers are used locally to address the dual-port RAM.
-Each binary pointer is converted into Gray code.
-The Gray-coded write pointer is synchronized into the read clock domain.
-The Gray-coded read pointer is synchronized into the write clock domain.
-The synchronized Gray pointers are used to generate the full and empty flags.
-FIFO data does not pass through synchronizer flip-flops. It is transferred through the dual-port RAM.
+- `fifo_wr_ctrl` operates in the `wr_clk` domain.
+- `fifo_rd_ctrl` operates in the `rd_clk` domain.
+- `cur_wr_bptr` and `cur_rd_bptr` are binary pointers used to address the dual-port RAM.
+- `cur_wr_gptr` is synchronized into the read clock domain by `sync_w2r`.
+- `cur_rd_gptr` is synchronized into the write clock domain by `sync_r2w`.
+- The synchronizer outputs are connected directly to the opposite pointer controllers as `sync_wr_gptr` and `sync_rd_gptr`.
+- `fifo_wr_ctrl` generates the `full` flag.
+- `fifo_rd_ctrl` generates the `empty` flag.
+- The dual-port RAM accepts `full` and `empty` so that writes and reads are blocked when the FIFO cannot accept the requested operation.
+- FIFO data is transferred through the dual-port RAM; only Gray-coded pointer values cross between the clock domains.
 
-The reference diagram is included to illustrate the general FIFO organization. The exact signal names and module partitioning in this project may differ from the reference implementation.
+This figure represents the module names and signal connections used in this project. It is not a reproduction of the original reference figure.
 
 ### FIFO structure
 
