@@ -1,15 +1,17 @@
 import cocotb
 import random
-import numpy as np
 from collections import deque
-from cocotb.clock import Clock
-from cocotb.triggers import FallingEdge, RisingEdge, Timer
-from cocotb.triggers import with_timeout
-from cocotb.result import SimTimeoutError
+from cocotb.triggers import (
+    FallingEdge,
+    RisingEdge,
+    Timer,
+    SimTimeoutError,
+    with_timeout,
+)
 
 FAST_CLK = 20
 SLOW_CLK = 325.52
-WIDTH = 24
+WIDTH = 64
 ADDR_WIDTH = 3
 DEPTH = 1 << ADDR_WIDTH
 PTR_WIDTH = ADDR_WIDTH + 1
@@ -425,7 +427,7 @@ async def frequency_test_rd_faster(dut):
 
 # _____________Random test_____________
 random.seed(1)
-delay = delay = round(random.uniform(0, 10))
+delay = round(random.uniform(0, 10))
 @cocotb.test()
 async def rd_fast_random_test(dut):
   await frequency_random_test(dut, SLOW_CLK, FAST_CLK, delay)
