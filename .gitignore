@@ -1,0 +1,9 @@
+sim_build/
+results.xml
+__pycache__/
+*.pyc
+*.vcd
+*.fst
+*.dot
+*.json
+synthesis.log

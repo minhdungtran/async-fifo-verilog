@@ -1,0 +1,56 @@
+read_verilog ../rtl/async_fifo.v
+read_verilog ../rtl/dual_port_ram.v
+read_verilog ../rtl/synchronizer.v
+read_verilog ../rtl/fifo_rd_ctrl.v
+read_verilog ../rtl/fifo_wr_ctrl.v
+
+design -save original_design
+
+# async_fifo
+design -load original_design
+hierarchy -check -top async_fifo
+proc
+memory
+check
+stat
+show -format svg -prefix ../docs/async_fifo_diagram async_fifo
+
+
+# dual_port_ram
+design -load original_design
+hierarchy -check -top dual_port_ram
+proc
+memory
+check
+stat
+show -format svg -prefix ../docs/dual_port_ram_diagram dual_port_ram
+
+
+# synchronizer
+design -load original_design
+hierarchy -check -top synchronizer
+proc
+memory
+check
+stat
+show -format svg -prefix ../docs/synchronizer_diagram synchronizer
+
+
+# fifo_rd_ctrl
+design -load original_design
+hierarchy -check -top fifo_rd_ctrl
+proc
+memory
+check
+stat
+show -format svg -prefix ../docs/fifo_rd_ctrl_diagram fifo_rd_ctrl
+
+
+# fifo_wr_ctrl
+design -load original_design
+hierarchy -check -top fifo_wr_ctrl
+proc
+memory
+check
+stat
+show -format svg -prefix ../docs/fifo_wr_ctrl_diagram fifo_wr_ctrl
