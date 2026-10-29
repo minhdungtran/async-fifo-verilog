@@ -1,6 +1,7 @@
 import cocotb
 import random
 from collections import deque
+from cocotb.clock import Clock
 from cocotb.triggers import (
     FallingEdge,
     RisingEdge,
@@ -13,9 +14,10 @@ FAST_CLK = 20
 SLOW_CLK = 325.52
 WIDTH = 64
 ADDR_WIDTH = 3
+CHANNEL_WIDTH = WIDTH // 2
 DEPTH = 1 << ADDR_WIDTH
 PTR_WIDTH = ADDR_WIDTH + 1
-MASK = (1<<WIDTH)-1
+MASK = (1<<CHANNEL_WIDTH)-1
 
 async def fifo_reset(dut):
   dut.wr_en.value = 0
@@ -41,11 +43,11 @@ async def fifo_reset(dut):
     await RisingEdge(dut.rd_clk)
 
 def appending(input_frame):
-  result = []
-  for left, right in input_frame:
-    word = ((MASK & left) << WIDTH) | (MASK & right)
-    result.append(word)
-  return result
+    result = []
+    for left, right in input_frame:
+        word = ((left & MASK) << CHANNEL_WIDTH) | (right & MASK)
+        result.append(word)
+    return result
 
 async def write_frame(dut, words):
   dut.wr_en.value = 0
