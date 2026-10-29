@@ -1,11 +1,11 @@
-# Asynchronous FIFO in Verilog
+# Asynchronous FIFO in SystemVerilog
 
 ## 1. Author
 
 **Author:** Tran Minh Dung  
-**HDL:** Verilog  
+**HDL:** SystemVerilog  
 **Verification:** Cocotb  
-**Synthesis:** Yosys
+**Synthesis:** Vivado
 
 ---
 
@@ -40,12 +40,9 @@ This figure represents the module names and signal connections used in this proj
 
 ### FIFO structure
 
-![Asynchronous FIFO structure](docs/async_fifo_diagram.svg)
-
 The design contains four main parts:
 
 ### Dual-port RAM
-[Dual-port RAM schematic](docs/dual_port_ram_diagram.svg)
 
 The dual-port RAM stores the FIFO data.
 
@@ -55,7 +52,6 @@ The dual-port RAM stores the FIFO data.
 - The RAM array is not reset; valid data is determined by the FIFO pointers and status flags.
 
 ### Write pointer controller
-![Write controller schematic](docs/fifo_wr_ctrl_diagram.svg)
 
 The write controller operates entirely in the write clock domain.
 
@@ -68,7 +64,6 @@ It:
 - Generates the `full` flag.
 
 ### Read pointer controller
-![Read controller schematic](docs/fifo_rd_ctrl_diagram.svg)
 
 The read controller operates entirely in the read clock domain.
 
@@ -81,7 +76,6 @@ It:
 - Generates the `empty` flag.
 
 ### Two-stage pointer synchronizers
-![Synchronizer schematic](docs/synchronizer_diagram.svg)
 
 Two synchronizers transfer pointer information between the clock domains:
 
@@ -116,6 +110,7 @@ The main goals are to:
 
 ## 4. Testing
 
+### Verification
 The FIFO is verified using Cocotb.
 
 The testbench covers:
@@ -141,42 +136,79 @@ A Python `deque` is used as the reference scoreboard:
 
 This checks for dropped, duplicated, corrupted, or reordered data.
 
-### Simulation waveform
-
 ![Asynchronous FIFO simulation waveform](docs/waveform.png)
 
-The RTL was also checked with:
+### RTL
+The RTL was also checked with **Verilator** for linting
 
-- **Verilator** for linting
-- **Yosys** for generic synthesis and structural checks
+### Synthesis
 
----
+The asynchronous FIFO was synthesized using **AMD Vivado 2025.2**, targeting the **Xilinx Zynq-7020 (`xc7z020clg400-1`)** FPGA.
+
+#### Synthesis Configuration
+
+| Parameter | Value |
+|---|---|
+| Data width | 64 bits |
+| FIFO depth | 8 entries |
+| Address width | 3 bits |
+| Pointer width | 4 bits |
+| Write clock | 3.072 MHz |
+| Read clock | 100 MHz |
+| Clock domains | Asynchronous |
+
+#### Resource Utilization
+
+| Resource | Used | Available | Utilization |
+|---|---:|---:|---:|
+| Slice LUTs | 60 | 53,200 | 0.11% |
+| Slice Registers | 96 | 106,400 | 0.09% |
+| BUFGCTRL | 2 | 32 | 6.25% |
+| Block RAM | 0 | 140 | 0% |
+
+The FIFO uses minimal FPGA logic resources. For this configuration, its 8 × 64-bit storage is implemented using registers rather than dedicated Block RAM.
+
+#### Timing Analysis
+
+| Timing Metric | Result |
+|---|---:|
+| Worst Setup Slack (WNS) | +7.202 ns |
+| Total Negative Slack (TNS) | 0.000 ns |
+| Setup Failing Endpoints | 0 |
+| Worst Hold Slack (WHS) | +0.131 ns |
+| Total Hold Slack (THS) | 0.000 ns |
+| Hold Failing Endpoints | 0 |
+| Worst Pulse Width Slack (WPWS) | +4.500 ns |
+| Total Pulse Width Negative Slack (TPWS) | 0.000 ns |
+| Pulse Width Failing Endpoints | 0 |
+
+*The reported timing results are from standalone Vivado synthesis with asynchronous clock-group constraints.*
+
+**Result:** All reported user-specified synthesis timing constraints are met.
 
 ## 5. Results and Conclusion
 
-The FIFO passed the directed and randomized Cocotb tests across multiple asynchronous clock relationships.
+## 5. Results and Conclusion
 
-The results demonstrate:
+The asynchronous FIFO was implemented in SystemVerilog and verified using Cocotb with Verilator. Directed and randomized tests covered FIFO ordering, full/empty protection, pointer wraparound, reset behavior, and operation under different asynchronous clock configurations.
 
-- Correct FIFO ordering
-- Correct `full` and `empty` behavior
-- Protection against overflow and underflow
-- Correct pointer wraparound
-- Correct operation when either clock is faster
-- Correct operation with a non-zero phase offset
-- Successful scoreboard comparison
-- Successful generic synthesis with Yosys
+The design was also synthesized using AMD Vivado 2025.2 for the Xilinx Zynq-7020 FPGA.
 
-Yosys reported no structural problems during the `check` pass.
+**Key results:**
 
-The asynchronous FIFO is ready for integration into the next stage of the audio DSP project:
+- All 18 Cocotb tests passed.
+- 60 Slice LUTs and 96 Slice Registers.
+- No dedicated Block RAM required for the tested 8 × 64-bit configuration.
+- Positive setup slack of **+7.202 ns**, with no reported setup or hold timing violations under the specified constraints.
+- The FIFO is parameterized for reuse in FPGA designs requiring clock-domain crossing.
+
+The current implementation has completed RTL development, functional simulation, linting, and standalone synthesis. System-level CDC validation and post-route timing verification remain future integration tasks.
+
+The next development stage is integration into the FPGA audio DSP pipeline:
 
 ```text
 I²S Receiver → Async FIFO → DSP Core → Async FIFO → I²S Transmitter
 ```
-
-The current work covers RTL implementation, simulation, linting, and generic synthesis. Vendor-specific FPGA implementation and physical hardware testing remain future work.
-
 ---
 
 ## References
