@@ -188,8 +188,6 @@ The FIFO uses minimal FPGA logic resources. For this configuration, its 8 × 64-
 
 ## 5. Results and Conclusion
 
-## 5. Results and Conclusion
-
 The asynchronous FIFO was implemented in SystemVerilog and verified using Cocotb with Verilator. Directed and randomized tests covered FIFO ordering, full/empty protection, pointer wraparound, reset behavior, and operation under different asynchronous clock configurations.
 
 The design was also synthesized using AMD Vivado 2025.2 for the Xilinx Zynq-7020 FPGA.
